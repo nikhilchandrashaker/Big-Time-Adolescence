@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Big Time Adolescence: Analytics Dashboard</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--text:#1d2433;--mute:#667085;--line:#e4e7ec;--pos:#3b8b5a;--mix:#e0a93b;--neg:#c4513d;--acc:#2b6cb0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1b2030;--text:#eceff5;--mute:#98a2b3;--line:#2c3345;--acc:#6aa8ee;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12151c;--card:#1b2030;--text:#eceff5;--mute:#98a2b3;--line:#2c3345;--acc:#6aa8ee;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi,.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi b{display:block;font-size:26px}.kpi span{color:var(--mute);font-size:13px}
+.card{margin-bottom:14px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--text);padding:6px 12px;border-radius:999px;cursor:pointer;font:inherit}
+.tabs button[aria-pressed="true"]{background:var(--acc);color:#fff;border-color:var(--acc)}
+.row{display:grid;grid-template-columns:150px 1fr 60px;gap:8px;align-items:center;margin:8px 0;font-size:14px}
+.bar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:var(--line)}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--mute);margin-top:6px}
+.legend u{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;text-decoration:none}
+.tl{position:relative;height:90px;margin:10px 8px 0}
+.tl:before{content:"";position:absolute;left:0;right:0;top:44px;height:2px;background:var(--line)}
+.pt{position:absolute;top:38px;width:14px;height:14px;border-radius:50%;background:var(--acc);transform:translateX(-50%)}
+.pt span{position:absolute;width:120px;left:50%;transform:translateX(-50%);text-align:center;font-size:12px;color:var(--mute)}
+.pt.a span{bottom:20px}.pt.b span{top:20px}
+.note{color:var(--mute);font-size:13px}
+@media(max-width:520px){.row{grid-template-columns:100px 1fr 48px}.pt span{width:90px}}
+</style></head>
+<body><main>
+<h1>Big Time Adolescence</h1>
+<p class="sub">Sundance darling meets lockdown · reception and release analytics</p>
+<div class="grid">
+<div class="kpi"><b>64</b><span>Metascore (21 reviews)</span></div>
+<div class="kpi"><b>7.1</b><span>Metacritic user score (31 ratings)</span></div>
+<div class="kpi"><b>410 days</b><span>Sundance to release</span></div>
+<div class="kpi"><b>7 days</b><span>Theaters to Hulu</span></div>
+<div class="kpi"><b>86% / 80%</b><span>Rotten Tomatoes critics / audience</span></div>
+</div>
+<div class="card"><h2>Rating mix</h2>
+<div class="tabs" id="tabs" role="group" aria-label="Choose comparison">
+<button data-v="bta" aria-pressed="true">Critics vs users</button>
+<button data-v="peer" aria-pressed="false">vs. peer film</button></div>
+<div id="bars"></div>
+<div class="legend"><span><u style="background:var(--pos)"></u>positive</span><span><u style="background:var(--mix)"></u>mixed</span><span><u style="background:var(--neg)"></u>negative</span></div>
+<p class="note" id="msg"></p></div>
+<div class="card"><h2>Release timeline</h2>
+<div class="tl">
+<div class="pt a" style="left:2%"><span>Sundance premiere<br>Jan 28, 2019</span></div>
+<div class="pt b" style="left:94%"><span>Limited release<br>Mar 13, 2020</span></div>
+<div class="pt a" style="left:98%"><span>Hulu<br>Mar 20, 2020</span></div></div>
+<p class="note">Hulu reportedly paid about $4M. No domestic box office is listed by The Numbers or Box Office Mojo.</p></div>
+<div class="card"><h2>Cast: feature roles per year</h2>
+<p class="note" style="margin-top:0">Credited scripted film roles, 2016–2018 vs 2020–2025. Lower-bound counts; no TV or music.</p>
+<div id="cast"></div>
+<div class="legend"><span><u style="background:#9aa5b1"></u>2016–2018</span><span><u style="background:var(--acc)"></u>2020–2025</span></div></div>
+<p class="note">Sources: Metacritic, Rotten Tomatoes, The Numbers, Box Office Mojo, Wikipedia, Alt Press. Small samples; descriptive only. The peer film’s Metascore (91) is from a snapshot.</p>
+</main>
+<script>
+var D={bta:{rows:[["Critics",15,6,0,"64/100"],["Users",22,6,3,"7.1/10"]],msg:"Positive share is nearly identical (71.4% vs 71.0%). Users are warmer on average but more polarized: about 10% negative vs none among critics."},
+peer:{rows:[["BTA critics",15,6,0,"64"],["NRSA critics",37,1,0,"91"]],msg:"Never Rarely Sometimes Always, released the same day, sits in a different acclaim tier than BTA’s solid but not acclaimed reception."}};
+function draw(k){var h="";D[k].rows.forEach(function(r){var t=r[1]+r[2]+r[3];h+='<div class="row"><span>'+r[0]+'</span><div class="bar" title="'+r[1]+' positive, '+r[2]+' mixed, '+r[3]+' negative"><i style="width:'+r[1]/t*100+'%;background:var(--pos)"></i><i style="width:'+r[2]/t*100+'%;background:var(--mix)"></i><i style="width:'+r[3]/t*100+'%;background:var(--neg)"></i></div><span>'+r[4]+'</span></div>'});
+document.getElementById("bars").innerHTML=h;document.getElementById("msg").textContent=D[k].msg;
+document.querySelectorAll("#tabs button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===k)})}
+document.getElementById("tabs").addEventListener("click",function(e){if(e.target.dataset.v)draw(e.target.dataset.v)});
+draw("bta");
+var C=[["Pete Davidson",0.33,2.33],["Sydney Sweeney",0.67,2.0],["Griffin Gluck",1.0,0.83],["Machine Gun Kelly",1.67,1.0]],ch="";
+C.forEach(function(c){ch+='<div class="row"><span>'+c[0]+'</span><div><div class="bar" style="margin-bottom:3px"><i style="width:'+c[1]/2.5*100+'%;background:#9aa5b1"></i></div><div class="bar"><i style="width:'+c[2]/2.5*100+'%;background:var(--acc)"></i></div></div><span>'+c[1].toFixed(1)+' → '+c[2].toFixed(1)+'</span></div>'});
+document.getElementById("cast").innerHTML=ch;
+</script></body></html>
